@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, UUID> {
 
-    Optional<Task> findByUuid(UUID uuid);
+    Optional<Task> findByTaskId(UUID uuid);
 
     // 🔍 Filter tasks by status, priority, or due date (any of them optional)
     @Query("""
@@ -25,5 +25,5 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> filterTasks(String status, String priority, LocalDate dueDate, Pageable pageable);
 
     // 🧍 Find tasks assigned to a specific user
-    Page<Task> findByAssignedUserUuid(UUID userUuid, Pageable pageable);
+    Page<Task> findByAssignedUserUserId(UUID userUuid, Pageable pageable);
 }

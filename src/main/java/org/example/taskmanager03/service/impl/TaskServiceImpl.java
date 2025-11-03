@@ -25,20 +25,19 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
         Task task = taskMapper.toEntity(taskDTO);
-        task.setTaskId(UUID.randomUUID());
         return taskMapper.toDTO(taskRepository.save(task));
     }
 
     @Override
     public TaskDTO getTaskById(UUID uuid) {
-        Task task = taskRepository.findByUuid(uuid)
+        Task task = taskRepository.findByTaskId(uuid)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         return taskMapper.toDTO(task);
     }
 
     @Override
     public TaskDTO updateTask(UUID uuid, TaskDTO taskDTO) {
-        Task task = taskRepository.findByUuid(uuid)
+        Task task = taskRepository.findByTaskId(uuid)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         task.setTitle(taskDTO.getTitle());
         task.setDescription(taskDTO.getDescription());
@@ -50,16 +49,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(UUID uuid) {
-        Task task = taskRepository.findByUuid(uuid)
+        Task task = taskRepository.findByTaskId(uuid)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
         taskRepository.delete(task);
     }
 
     @Override
     public TaskDTO assignTaskToUser(UUID taskId, UUID userId) {
-        Task task = taskRepository.findByUuid(taskId)
+        Task task = taskRepository.findByTaskId(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-        User user = userRepository.findByUuid(userId)
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         task.setAssignedUser(user);

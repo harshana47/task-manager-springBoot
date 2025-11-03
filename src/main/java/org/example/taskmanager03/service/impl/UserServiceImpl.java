@@ -23,10 +23,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        User user = userMapper.toEntity(userDTO);
+        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
+            throw new RuntimeException("User already exists with email: " + userDTO.getEmail());
+        }
+
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setUserId(UUID.randomUUID());
-        return userMapper.toDTO(userRepository.save(user));
+        user.setRole(userDTO.getRole());
+
+        User savedUser = userRepository.save(user);
+        return userMapper.toDTO(savedUser);
     }
 
     @Override
@@ -39,14 +47,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserById(UUID uuid) {
-        User user = userRepository.findByUuid(uuid)
+        User user = userRepository.findByUserId(uuid)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toDTO(user);
     }
 
     @Override
     public UserDTO updateUser(UUID uuid, UserDTO userDTO) {
-        User user = userRepository.findByUuid(uuid)
+        User user = userRepository.findByUserId(uuid)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
@@ -59,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(UUID uuid) {
-        User user = userRepository.findByUuid(uuid)
+        User user = userRepository.findByUserId(uuid)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
     }

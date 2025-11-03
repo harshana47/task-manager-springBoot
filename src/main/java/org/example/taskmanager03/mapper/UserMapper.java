@@ -11,9 +11,8 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    @Mapping(target = "uuid", source = "uuid")
     UserDTO toDTO(User user);
 
-    @Mapping(target = "uuid", source = "uuid")
+    @Mapping(target = "tasks", ignore = true)
     User toEntity(UserDTO userDTO);
 }
