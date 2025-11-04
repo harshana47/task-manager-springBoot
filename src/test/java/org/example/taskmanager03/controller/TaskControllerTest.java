@@ -98,5 +98,6 @@ class TaskControllerTest {
 
         mockMvc.perform(get("/api/tasks"))
                 .andExpect(status().isOk());
+
     }
 }

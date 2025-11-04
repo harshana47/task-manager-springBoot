@@ -24,7 +24,7 @@ public class OverdueTaskNotifier {
     private final TaskRepository taskRepository;
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
 
-    @Value("${spring.mail.username:task-manager@example.org}")
+    @Value("${spring.mail.username:timberntaste@gmail.com}")
     private String fromAddress;
 
     @Scheduled(cron = "0 */1 * * * *")

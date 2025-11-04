@@ -104,7 +104,6 @@ public class TaskServiceImpl implements TaskService {
                 tasks = taskRepository.filterTasks(status, priority, date, pageable);
             }
         } else {
-            // USER: only own tasks
             String email = currentEmail();
             if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No current user");
             User user = userRepository.findByEmail(email)
