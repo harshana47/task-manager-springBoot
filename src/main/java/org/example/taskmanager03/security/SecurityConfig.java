@@ -27,9 +27,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt is the standard for encoding passwords
         return new BCryptPasswordEncoder();
     }
 

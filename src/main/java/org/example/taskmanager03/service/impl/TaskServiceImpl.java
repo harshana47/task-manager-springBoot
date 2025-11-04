@@ -7,7 +7,9 @@ import org.example.taskmanager03.entity.User;
 import org.example.taskmanager03.mapper.TaskMapper;
 import org.example.taskmanager03.repo.TaskRepository;
 import org.example.taskmanager03.repo.UserRepository;
+import org.example.taskmanager03.service.QuoteService;
 import org.example.taskmanager03.service.TaskService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +24,16 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
+    @Autowired
+    private QuoteService quoteService;
+
     @Override
     public TaskDTO createTask(TaskDTO taskDTO) {
         Task task = taskMapper.toEntity(taskDTO);
+
+        String quote = quoteService.getMotivationalQuote();
+        task.setDescription(task.getDescription() + " | Motivation: " + quote);
+
         return taskMapper.toDTO(taskRepository.save(task));
     }
 

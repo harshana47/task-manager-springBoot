@@ -11,11 +11,9 @@ public interface TaskMapper {
 
     TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
 
-    // Map Entity → DTO
     @Mapping(target = "assignedUserId", source = "assignedUser.userId")
     TaskDTO toDTO(Task task);
 
-    // Map DTO → Entity
-    @Mapping(target = "assignedUser", ignore = true) // will be set manually in service
+    @Mapping(target = "assignedUser", ignore = true)
     Task toEntity(TaskDTO taskDTO);
 }

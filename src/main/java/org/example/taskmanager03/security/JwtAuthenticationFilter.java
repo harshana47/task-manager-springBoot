@@ -35,16 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
-                role = jwtUtil.extractRole(jwt);  // You need to implement extractRole() in JwtUtil
+                role = jwtUtil.extractRole(jwt);
             } catch (Exception e) {
                 logger.error("Error extracting info from JWT: " + e.getMessage());
             }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Map role directly from JWT
             List<SimpleGrantedAuthority> authorities = List.of(
-                    new SimpleGrantedAuthority("ROLE_" + role)  // Spring expects "ROLE_" prefix
+                    new SimpleGrantedAuthority("ROLE_" + role)
             );
 
             UsernamePasswordAuthenticationToken authToken =
