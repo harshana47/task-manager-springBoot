@@ -14,7 +14,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 public class User {
-    //User: id, username, email, password, role.
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
@@ -23,7 +22,6 @@ public class User {
     private String password;
     private String role;
 
-    // One user can have many tasks
     @OneToMany(mappedBy = "assignedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 }
