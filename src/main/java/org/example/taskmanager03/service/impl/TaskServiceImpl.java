@@ -31,8 +31,15 @@ public class TaskServiceImpl implements TaskService {
     public TaskDTO createTask(TaskDTO taskDTO) {
         Task task = taskMapper.toEntity(taskDTO);
 
+        task.setTaskId(null);
+
         String quote = quoteService.getMotivationalQuote();
-        task.setDescription(task.getDescription() + " | Motivation: " + quote);
+        String baseDesc = task.getDescription();
+        if (baseDesc == null || baseDesc.isBlank()) {
+            task.setDescription("Motivation: " + quote);
+        } else {
+            task.setDescription(baseDesc + " | Motivation: " + quote);
+        }
 
         return taskMapper.toDTO(taskRepository.save(task));
     }

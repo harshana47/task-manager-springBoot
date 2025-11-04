@@ -11,13 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Endpoints for user authentication")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -25,9 +30,15 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
+    @Operation(summary = "Authenticate and get JWT token", security = {},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Authenticated",
+                            content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+                    @ApiResponse(responseCode = "500", description = "Server error")
+            })
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         try {
-            // Authenticate user
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             authRequest.getEmail(),
@@ -35,7 +46,6 @@ public class AuthController {
                     )
             );
 
-            // Find user in database
             User user = userRepository.findByEmail(authRequest.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -59,4 +69,3 @@ public class AuthController {
         }
     }
 }
-

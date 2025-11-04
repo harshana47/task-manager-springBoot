@@ -20,7 +20,7 @@ public class QuoteService {
         log.info("Fetching motivational quote from {}", QUOTE_API_URL);
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(MediaType.parseMediaTypes("application/json"));
+            headers.setAccept(MediaType.parseMediaTypes("application/json, text/plain, text/html"));
             headers.set(HttpHeaders.USER_AGENT, "TaskManager/1.0 (+https://example.org)");
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -31,35 +31,62 @@ public class QuoteService {
                     String.class
             );
 
+            HttpStatusCode status = responseEntity.getStatusCode();
+            MediaType contentType = responseEntity.getHeaders().getContentType();
             String response = responseEntity.getBody();
+
+            if (!status.is2xxSuccessful()) {
+                log.warn("Quote API returned non-2xx status: {} contentType={} bodySnippet=[{}]",
+                        status, contentType, truncate(response, 200));
+                return defaultQuote();
+            }
+
             if (response == null || response.isBlank()) {
-                log.warn("Quote API returned empty response (status: {}, contentType: {})",
-                        responseEntity.getStatusCode(), responseEntity.getHeaders().getContentType());
-                return "Stay positive and keep coding!";
+                log.warn("Quote API returned empty response (status: {}, contentType: {})", status, contentType);
+                return defaultQuote();
             }
 
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                JsonNode root = mapper.readTree(response);
-                if (root.has("slip") && root.get("slip").has("advice")) {
-                    String advice = root.get("slip").get("advice").asText();
-                    log.debug("Parsed advice from JSON.");
-                    return advice;
-                }
-                if (root.has("advice")) {
-                    String advice = root.get("advice").asText();
-                    log.debug("Parsed advice from JSON (flat).");
-                    return advice;
-                }
-                log.warn("Quote API JSON did not contain expected fields. Returning raw body.");
-            } catch (Exception ex) {
-                log.warn("Failed to parse Quote API JSON response, returning raw response. Error: {}", ex.getMessage());
+            String advice = tryParseAdviceJson(response);
+            if (advice != null && !advice.isBlank()) {
+                return advice;
             }
 
+            log.debug("Returning raw response as advice");
             return response.trim();
         } catch (Exception e) {
             log.error("Error calling Quote API: {}", e.getMessage(), e);
-            return "Keep pushing forward!";
+            return defaultQuote();
         }
+    }
+
+    private String tryParseAdviceJson(String response) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response);
+            if (root == null) return null;
+            if (root.has("slip") && root.get("slip").has("advice")) {
+                String advice = root.get("slip").get("advice").asText();
+                log.debug("Parsed advice from JSON.");
+                return advice;
+            }
+            if (root.has("advice")) {
+                String advice = root.get("advice").asText();
+                log.debug("Parsed advice from JSON (flat).");
+                return advice;
+            }
+            return null;
+        } catch (Exception ex) {
+            log.warn("Failed to parse Quote API JSON response, returning raw response. Error: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    private String defaultQuote() {
+        return "Keep pushing forward!";
+    }
+
+    private String truncate(String s, int max) {
+        if (s == null) return null;
+        return s.length() <= max ? s : s.substring(0, max) + "...";
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,6 +45,7 @@ public class HttpClientConfig {
         }
 
         restTemplate.getInterceptors().add(new LoggingInterceptor());
+        restTemplate.setErrorHandler(new NoThrowErrorHandler());
 
         return restTemplate;
     }
@@ -93,6 +95,12 @@ public class HttpClientConfig {
         private String truncate(String s, int max) {
             if (s == null) return null;
             return s.length() <= max ? s : s.substring(0, max) + "...";
+        }
+    }
+
+    static class NoThrowErrorHandler extends DefaultResponseErrorHandler {
+        @Override
+        public void handleError(ClientHttpResponse response) throws IOException {
         }
     }
 }
